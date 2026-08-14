@@ -358,14 +358,15 @@ module ModeTools
     missing = nil
 
     hole_set_sets = { 'all holes' => ['all'],
-                      'plain draw and blow' => %w[draw-full blow-full] }
+                      'no bends' => %w[draw-full blow-full] }
 
     puts "\e[2m"
     puts "Trying to fit the #{to_handle.length} holes given (#{semis_wanted_unshifted.length} uniq) from key of  #{$key}"
-    puts 'onto harmonicas of all keys using hole sets '
+    puts 'onto harmonicas of all keys; using hole sets '
     puts '   ' + hole_set_sets.keys.map {|s| "'#{s}'"}.join('  and  ')
-    puts 'Maybe by shifting up or down one octave'
-    puts 'Reporting best matches only, ranked by size of hole-set used'
+    puts 'Also try shifting up or down one octave'
+    puts 'Reporting best matches only, ranked by number of uniq missing holes'
+    puts 'and size of hole-set tried'
     puts
     puts 'To get the actual holes to play, use (replace KEY):'
     puts
@@ -374,18 +375,9 @@ module ModeTools
     puts "  harpwise print  KEY  #{to_handle_as_notes_down.join(' ')}    #  octave down"
     puts "\e[0m"
 
-    # also try one octave up and down
+    to_print = Array.new
+    # Also try one octave up and down
     [0, 1, -1].each do |octave_shift|
-      puts
-      case octave_shift
-      when 0
-        puts 'Trying   UNSHIFTED   notes given'
-      when 1
-        puts 'Shifting notes given   UP   one octave'
-      when -1
-        puts 'Shifting notes given   DOWN   one octave'
-      end
-      puts
 
       semis_wanted = semis_wanted_unshifted.map {|semi| semi + octave_shift * 12}
       missing = []
@@ -418,35 +410,66 @@ module ModeTools
         2 * ( a[0] <=> b[0] ) + ( a[1] <=> b[1] )
       end
 
-      num_num_missing = 0
-      has_num_missing_zero = false
+      # ranked.group_by {|x| x[0]}.to_a may look like this:
+      #
+      # [[0, [[0, 31, "c", "all holes"]]],
+      #  [1,
+      #   [[1, 31, "g", "all holes"],
+      #      ...
+      #  [8,
+      #   [[8, 19, "cs", "plain draw and blow"],
+      #      ...
+      #    [8, 19, "fs", "plain draw and blow"]]]]      
+
+      ranks_to_print = 0
       ranked.group_by {|x| x[0]}.to_a.each do |num_missing, details_per_rank|
-        if num_missing == 0
-          puts "\e[32m  Keys having   ALL   of the notes given"
-          has_num_missing_zero = true
-
-        elsif num_missing == semis_wanted.length
-          puts "\e[33m  No Keys having any of these holes\e[0m" unless has_num_missing_zero
-          break
-
-        else
-          puts "\e[34m  Keys having   ALL BUT #{num_missing}   of the notes given"
-
-        end
-        num_num_missing += 1
+        # details_per_rank may look like (copied from above)
+        #   [[1, 31, "g", "all holes"],
+        #      ...
+        #    [1, 31, "b", "all holes"]]],
+        
+        break if num_missing == semis_wanted.length
+        break if num_missing > 2 + semis_wanted.length / 2 && !$opts[:verbose]
+        break if ranks_to_print > 1 && !$opts[:verbose]
+        break if ranks_to_print > 0 && $opts[:brief]
 
         details_per_rank.group_by {|d| d[3]}.each do |name_avail, details_per_avail|
-          puts "    for hole set   '#{name_avail}'"
-          puts
-          puts '      ' + details_per_avail.map {|d| d[2]}.sort_by {|k| Theory::note2semi(k + '4')}.uniq.join('  ')
-          puts
+          # details_per_avail the same as written above like:
+          # missing << [semis_missing.length, semis_avail.length, $key, name_avail]
+          to_print << [octave_shift, num_missing,
+                       details_per_avail.map {|d| d[2]}.sort_by {|k| Theory::note2semi(k + '4')}.uniq.join('  '),
+                       name_avail]
         end
 
-        print "\e[0m"
-        break if num_num_missing > 1
+        ranks_to_print += 1
+        
       end  ## loop over ranked and grouped
+      
     end  ## each octave_shift
-    puts "\e[2mSee also explanations at the top.\e[0m"
+
+    puts
+    print "Table with results:"
+    puts ($opts[:verbose] ? '' : "        \e[2m(some far-off results omitted, use -v to see all)\e[0m")
+    puts
+    colw1 = [10, to_print.map {|tp| tp[2].length}.max].max
+    colw2 = [10, to_print.map {|tp| tp[3].length}.max].max
+    puts '  | octave | num holes | ' + ' harp keys'.rjust(colw1) + ' | ' + ' hole sets'.rjust(colw2) + ' |'
+    puts '  | shift  | missing   | ' + '          '.rjust(colw1) + ' | ' + '          '.rjust(colw2) + ' |'
+    puts '  |--------+-----------+' + '---'.rjust(colw1 + 2,'-') + '+' + '---'.rjust(colw2 + 2,'-') + '|'
+    ocs_prev = nam_prev = nil
+    to_print.each do |ocs, nmiss, keys, name_avail|
+      col0 = "\e[0m"
+      col1 = ( ocs == ocs_prev ? "\e[2m" : '' )
+      col2 = ( nmiss == 0 ? "\e[32m" : "\e[34m" )
+      col3 = ( name_avail == nam_prev ? "\e[2m" : '' )
+      puts '  |' + col1 + %w(down none up)[ocs + 1].rjust(7) + col0 +
+           ' |' + col2 + nmiss.to_s.rjust(10) + col0 +
+           ' | ' + col2 + keys.ljust(colw1) + col0 +
+           ' | ' + col3 + name_avail.rjust(colw2) + col0 + ' |'
+      ocs_prev = ocs
+      nam_prev = name_avail
+    end
+    puts
     puts
   end
 

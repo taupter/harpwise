@@ -110,7 +110,8 @@ module Args
          lick_prog: %w[--lick-prog --lick-progression]
        }],
        [Set[:listen], {
-         no_player_info: %w[--no-player-info]
+         no_player_info: %w[--no-player-info],
+         journal: %w[-j --journal]
        }],
        [Set[:listen, :quiz, :licks, :develop], {
          time_slice: %w[--time-slice]
@@ -162,7 +163,7 @@ module Args
        [Set[:play, :print], {
          what: %w[-w --what]
        }],
-       [Set[:print, :jamming, :develop], {
+       [Set[:print, :jamming, :develop, :tools], {
          verbose: %w[-v --verbose]
        }],
        [Set[:jamming], {
@@ -427,7 +428,8 @@ module Args
     $keyboard_translations = parse_keyboard_translate(opts[:keyboard_translate])
 
     opts[:comment] = :lick_holes if opts[:licks]
-
+    opts[:comment] = :journal if opts[:journal]
+    
     # save them away, so we may later restore them
     $initial_tag_options = Hash.new
     %i[tags_all tags_any drop_tags_all drop_tags_any iterate].each do |opt|

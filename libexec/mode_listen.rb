@@ -157,9 +157,9 @@ module ModeListen
         end,
         # lambda_hint
         lambda do |_hole|
-          if Time.now.to_f - $program_start < 6
+          if Time.now.to_f - $program_start < 10
             []
-          elsif !$first_hole_held && Time.now.to_f - $program_start < 10
+          elsif !$first_hole_held && Time.now.to_f - $program_start < 15
             ["You may blow your harp now ....      (key of #{$key})"]
           elsif $opts[:no_player_info] || $opts[:comment] == :journal
             []

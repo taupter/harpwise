@@ -459,7 +459,7 @@ usage_types.keys.reject {|k| k == 'none'}.each_with_index do |mode, idx|
                     'licks' => [4, '--partial 1@b, 1@e or 2@x'],
                     'play' => [2, 'disamiguate given arguments'],
                     'print' => [7, 'name collisions are usually detected'],
-                    'tools' => [6, 'same effect as --drop-tags-any'],
+                    'tools' => [3, 'same effect as --drop-tags-any'],
                     'develop' => [8, 'If lagging has happened'],
                     'jamming' => [2, 'instead of playing'] }
 
@@ -4531,9 +4531,9 @@ do_test 'id-162: tool match-harps' do
   tms 'harpwise tools match-harps +3  +4  -2  -2//  +4  -2 -2//  +2  +4  +2  -1 +4 -3  -2  -2//  +2  +4 +5'
   tms :ENTER
   wait_for_end_of_harpwise
-  expect { screen[9]['Shifting notes given   DOWN   one octave'] }
-  expect { screen[16]['Keys having   ALL BUT 4   of the notes given'] }
-  expect { screen[19] == '      bf  b' }
+  expect { screen[12]['  |   none |         0 | c  g                |  all holes |'] }
+  expect { screen[17]['  |     up |         1 | g                   |   no bends |'] }
+  expect { screen[20]['  |   down |         4 | bf  b               |  all holes |'] }
   kill_session
 end
 

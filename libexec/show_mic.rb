@@ -348,7 +348,8 @@ module ShowMic
         # so trigger redisplay of hint when message is expired
         hints_old = nil
       elsif lambda_hint && tntf - hints_refreshed_at > 1
-        # Make sure to refresh hint, once the current message has elapsed
+        # Make sure to refresh hint, once the current message has elapsed; so message takes
+        # precedence over hint
         $perfctr[:lambda_hint_call] += 1
         hints = lambda_hint.call(hole)
         hints_refreshed_at = tntf

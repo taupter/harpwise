@@ -928,8 +928,8 @@ def err text
   exit 1
 end
 
-# Hint or message buffer for main loop in variou places. Makes sure, that all
-# messages are shown long enough
+# Hint or message buffer for main loop in various places. Makes sure, that all
+# messages are shown long enough. Takes precedence over hints
 class MsgBuf
   def self.reset
     # central data structure, used as a stack

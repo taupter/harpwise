@@ -350,6 +350,10 @@ no_player_info:
   - |
     Do not print player infos in background
 
+journal:
+  - |
+    Start journal; just like '--comment journal'
+
 keyboard_translate:
   - |
     translate keys
