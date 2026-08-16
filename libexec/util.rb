@@ -656,7 +656,8 @@ module Util
                                         summary[:highlight][:color] = "\e[0m\e[7m\e[92m"
                                         "\nBut it still appears and has been   \e[1mhighlighted   \e[0m#{summary[:highlight][:count]} times as part of valid choices."
                                       else
-                                        "\nIt is   \e[1mnot even a substring   \e[0mof any valid choice.\nMaybe try a shorter argument to get highlights."
+                                        clause = (hl_text['-'] ? ' or a single word' : '')
+                                        "\nIt is   \e[1mnot even a substring   \e[0mof any valid choice.\nMaybe try a shorter argument#{clause} to get highlights."
                                       end
     elsif hl_text
       summary[:highlight] =

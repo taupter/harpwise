@@ -4531,9 +4531,9 @@ do_test 'id-162: tool match-harps' do
   tms 'harpwise tools match-harps +3  +4  -2  -2//  +4  -2 -2//  +2  +4  +2  -1 +4 -3  -2  -2//  +2  +4 +5'
   tms :ENTER
   wait_for_end_of_harpwise
-  expect { screen[12]['  |   none |         0 | c  g                |  all holes |'] }
-  expect { screen[17]['  |     up |         1 | g                   |   no bends |'] }
-  expect { screen[20]['  |   down |         4 | bf  b               |  all holes |'] }
+  expect { screen[4]['|   none |  -->    0 | c  g                |  all holes |'] }
+  expect { screen[14]['|     up |         1 | g                   |   no bends |'] }
+  expect { screen[20]['|   down |         4 | bf  b               |  all holes |'] }
   kill_session
 end
 

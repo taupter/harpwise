@@ -364,15 +364,15 @@ module ModeTools
     puts "Trying to fit the #{to_handle.length} holes given (#{semis_wanted_unshifted.length} uniq) from key of  #{$key}"
     puts 'onto harmonicas of all keys; using hole sets '
     puts '   ' + hole_set_sets.keys.map {|s| "'#{s}'"}.join('  and  ')
-    puts 'Also try shifting up or down one octave'
+    puts 'Also trying to shift up or down one octave'
     puts 'Reporting best matches only, ranked by number of uniq missing holes'
     puts 'and size of hole-set tried'
     puts
-    puts 'To get the actual holes to play, use (replace KEY):'
+    puts 'To get the actual holes to play, use:  harpwise print KEY'
     puts
-    puts "  harpwise print  KEY  #{to_handle_as_notes.join(' ')}    #  unshifted"
-    puts "  harpwise print  KEY  #{to_handle_as_notes_up.join(' ')}    #  octave up"
-    puts "  harpwise print  KEY  #{to_handle_as_notes_down.join(' ')}    #  octave down"
+    puts '  unshifted:    ' + to_handle_as_notes.join(' ')
+    puts '  octave up:    ' + to_handle_as_notes_up.join(' ')
+    puts '  octave down:  ' + to_handle_as_notes_down.join(' ')
     puts "\e[0m"
 
     to_print = Array.new
@@ -448,26 +448,30 @@ module ModeTools
     end  ## each octave_shift
 
     puts
-    print "Table with results:"
-    puts ($opts[:verbose] ? '' : "        \e[2m(some far-off results omitted, use -v to see all)\e[0m")
+    print "Results:"
+    puts ($opts[:verbose] ? '' : "            \e[2m(far-off omitted, use -v to see all)\e[0m")
     puts
-    colw1 = [10, to_print.map {|tp| tp[2].length}.max].max
-    colw2 = [10, to_print.map {|tp| tp[3].length}.max].max
-    puts '  | octave | num holes | ' + ' harp keys'.rjust(colw1) + ' | ' + ' hole sets'.rjust(colw2) + ' |'
-    puts '  | shift  | missing   | ' + '          '.rjust(colw1) + ' | ' + '          '.rjust(colw2) + ' |'
-    puts '  |--------+-----------+' + '---'.rjust(colw1 + 2,'-') + '+' + '---'.rjust(colw2 + 2,'-') + '|'
-    ocs_prev = nam_prev = nil
+    cwidts = [2,3].to_a.map {|n| [n, [10, to_print.map {|tp| tp[n].length}.max].max]}.to_h
+    def_col = "\e[0m"
+    line_col = "\e[2m"
+    line_rpl = ['|', line_col + '|' + def_col]
+    arrow_rpl = ['-->', line_col + '-->' + def_col]
+    hline = line_col + '  |--------+-----------+' + '---'.rjust(cwidts[2] + 2,'-') + '+' + '---'.rjust(cwidts[3] + 2,'-') + '|' + def_col
+    puts ('  | octave | num holes | ' + 'harp keys'.ljust(cwidts[2]) + ' | ' + ' hole set'.rjust(cwidts[3]) + ' |').gsub(*line_rpl)
+    puts ('  |  shift |   missing | ' + '          '.rjust(cwidts[2]) + ' | ' + '          '.rjust(cwidts[3]) + ' |').gsub(*line_rpl)
+    ocs_prev = nil
+    puts hline if $opts[:verbose]
     to_print.each do |ocs, nmiss, keys, name_avail|
-      col0 = "\e[0m"
-      col1 = ( ocs == ocs_prev ? "\e[2m" : '' )
-      col2 = ( nmiss == 0 ? "\e[32m" : "\e[34m" )
-      col3 = ( name_avail == nam_prev ? "\e[2m" : '' )
-      puts '  |' + col1 + %w(down none up)[ocs + 1].rjust(7) + col0 +
-           ' |' + col2 + nmiss.to_s.rjust(10) + col0 +
-           ' | ' + col2 + keys.ljust(colw1) + col0 +
-           ' | ' + col3 + name_avail.rjust(colw2) + col0 + ' |'
+      puts hline unless $opts[:verbose]
+      ccols = []
+      ccols[0] = ( ocs == ocs_prev ? "\e[2m" : '' )
+      ccols[1] = ccols[2] = "\e[0m"
+      ccols[3] = "\e[2m"
+      puts ('  |' + ccols[0] + %w(down none up)[ocs + 1].rjust(7) + def_col +
+            ' |' + ccols[1] + ((nmiss == 0 ? '-->    ' : '') + nmiss.to_s).rjust(10) + def_col +
+            ' | ' + ccols[2] + keys.ljust(cwidts[2]) + def_col +
+            ' | ' + ccols[3] + name_avail.rjust(cwidts[3]) + def_col + ' |').gsub(*line_rpl).gsub(*arrow_rpl)
       ocs_prev = ocs
-      nam_prev = name_avail
     end
     puts
     puts
