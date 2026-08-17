@@ -540,13 +540,13 @@ module Interact
     elsif %w[r R].include?(char)
       $ctl_mic[:set_ref] = ( char == 'r' ? :played : :choose )
       text = 'Set reference'
-    elsif char == 'CTRL-BACKSPACE'
+    elsif char == 'CTRL-U'
       if $opts[:comment] == :journal
         $ctl_mic[:journal_clear] = true
         text = 'Clear journal'
       else
         text = get_text_invalid(char, true)
-        $msgbuf.print 'CTRL-BACKSPACE only works for comment journal', 0, 2
+        $msgbuf.print 'CTRL-U only works for comment journal', 0, 2
       end
     elsif char == 'c'
       $ctl_mic[:change_comment] = true
@@ -771,7 +771,7 @@ module Interact
     puts "     \e[0m\e[32mw\e[0m\e[2m: write to file     \e[0m\e[32mr\e[0m\e[2m: recall 100 old lines from file into edit"
     puts " \e[0m\e[34mOutside\e[0m\e[2m this menu, when comment is 'journal'"
     puts "     \e[0m\e[32mRETURN\e[0m\e[2m: add the current hole   \e[0m\e[32mBACKSPACE\e[0m\e[2m: delete most recent"
-    puts "     \e[0m\e[32mCTRL-H, CTRL-BACKSPACE\e[0m\e[2m: save, then delete whole journal; use here too"
+    puts "     \e[0m\e[32mCTRL-U\e[0m\e[2m: save, then delete whole journal; use here too"
     puts " \e[0m\e[34mAnywhere, anytime\e[0m\e[2m        \e[0m\e[32mj\e[0m\e[2m: invoke journal-menu and switch comment"
 
     print "\e[0m\e[2m Type one of the keys above for action, any other to leave; \e[0m\e[32mthen play\e[0m\e[2m ...\e[K"
@@ -784,7 +784,7 @@ module Interact
       $ctl_mic[:journal_write] = true
     when 'p'
       $ctl_mic[:journal_play] = true
-    when 'CTRL-BACKSPACE'
+    when 'CTRL-U'
       $ctl_mic[:journal_clear] = true
     when 's'
       $ctl_mic[:journal_short] = true
@@ -980,13 +980,15 @@ module Interact
       else
 
         case key.ord
-        when 18
-          'CTRL-R'
         when 12
           'CTRL-L'
+        when 18
+          'CTRL-R'
+        when 21
+          'CTRL-U'
         when 127
           'BACKSPACE'
-        when 8
+        when 8  # note, that CTRL-H = CTRL-BACKSPACE
           'CTRL-BACKSPACE'
         else
           key

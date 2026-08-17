@@ -2238,7 +2238,7 @@ do_test 'id-58: listen with journal on request, recall later' do
   expect { File.exist?(journal_file) }
   tms 'j'
   sleep 2
-  tms :C_H # CTRL-H or CTRL-BACKSPACE
+  tms :C_U
   sleep 1
   expect { screen[-7]['No journal yet to show'] }
   tms 'j'
@@ -2260,7 +2260,7 @@ do_test 'id-59: listen and edit journal' do
   sleep 1
   tms 'j'
   tms 'a'
-  tms :C_H
+  tms :C_U
   tms :ENTER
   tms :ENTER
   sleep 1
@@ -4546,7 +4546,7 @@ do_test 'id-163: listen to low harp' do
   tms :ENTER
   tms 'j'
   tms 'a'
-  tms :C_H
+  tms :C_U
   wait_for_start_of_pipeline
   sleep 1
   tms :ENTER

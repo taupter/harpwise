@@ -1316,10 +1316,11 @@ chords. It knows a bit about tempo, but has no notion of rhythm.
 
     - match-harps:
       Accept a sequence of notes or holes and take those through harps
-      of all known keys, checking if the holes can be played; this tool
-      regards either all holes or the hole sets draw_full and blow_full.
-      It answers the question (e.g.): Can a series of notes be played
-      on any harmonica? Can it be played without bends?
+      of all known keys; check for each key, which of the notes are
+      available; try this with different hole sets (with and wo bends);
+      print the result as a table. This tool answers the question:
+      Can a series of holes or notes be played more easily or at all on
+      any other harmonica? Can it be played without bends?
 
     - shift:
       shift a sequence of holes or notes or a single lick by the given

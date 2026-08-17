@@ -368,7 +368,7 @@ module ModeTools
     puts 'Reporting best matches only, ranked by number of uniq missing holes'
     puts 'and size of hole-set tried'
     puts
-    puts 'To get the actual holes to play, use:  harpwise print KEY'
+    puts 'To get the actual holes to play, use:  harpwise print KEY -b NOTES_BELOW'
     puts
     puts '  unshifted:    ' + to_handle_as_notes.join(' ')
     puts '  octave up:    ' + to_handle_as_notes_up.join(' ')

@@ -124,10 +124,14 @@ module ModeListen
                    if journal_length == 0
                      return ["\e[K",
                              "\e[K",
-                             "   No journal yet to show ...\e[2m journal all is \e[0m#{$journal_all ? ' ON' : 'OFF'}\e[2m\e[0m\e[K",
+                             "   No journal yet to show ...\e[2m journal-all is \e[0m#{$journal_all ? ' ON' : 'OFF'}\e[2m\e[0m\e[K",
                              "\e[K",
-                             "   \e[2mPlay and use RETURN to add hole beeing played, BACKSPACE to remove",
-                             "   \e[2mType 'j' for menu e.g. to journal all notes beeing played (is #{$journal_all ? 'ON' : 'OFF'})\e[0m"]
+                             if $journal_all
+                               "   \e[2mJust play, holes will be added automatically, BACKSPACE to remove"
+                             else
+                               "   \e[2mPlay and use RETURN to add hole beeing played, BACKSPACE to remove"
+                             end,
+                             "   \e[2mType 'j' for menu with commands and toggles, e.g. journal-all\e[0m"]
                    end
                    if jlen_refresh_comment_cache != journal_length || $ctl_mic[:update_comment]
                      jlen_refresh_comment_cache = journal_length
