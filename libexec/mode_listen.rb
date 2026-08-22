@@ -127,7 +127,7 @@ module ModeListen
                              "   No journal yet to show ...\e[2m journal-all is \e[0m#{$journal_all ? ' ON' : 'OFF'}\e[2m\e[0m\e[K",
                              "\e[K",
                              if $journal_all
-                               "   \e[2mJust play, holes will be added automatically, BACKSPACE to remove"
+                               "   \e[2mJust play; holes will be added automatically, BACKSPACE to remove"
                              else
                                "   \e[2mPlay and use RETURN to add hole beeing played, BACKSPACE to remove"
                              end,

@@ -678,7 +678,6 @@ module Cfg
     conf[:sharps_or_flats] = :sharps if conf[:sharps_or_flats] == :sharp
     conf[:sharps_or_flats] = :flats if conf[:sharps_or_flats] == :flat
     err err_head + "Config 'sharps_or_flats' can only be 'flats' or 'sharps' not '#{conf[:sharps_or_flats]}'" unless %i[sharps flats].include?(conf[:sharps_or_flats])
-
     conf
   end
 

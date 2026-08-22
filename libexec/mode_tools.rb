@@ -345,15 +345,34 @@ module ModeTools
 
   def tool_match_harps to_handle
     err 'Need at least one hole or note as an argument' if to_handle.length == 0
+    details_script_name = "#{$dirs[:data]}/match_harps_details.sh"
+    details_script = File.open(details_script_name,'w',0744)
+    details_script.write <<~END_OF_HEAD
+    #!/bin/bash\n
+    echo
+    echo "Printing details for this invocation of harpwise:"
+    echo
+    echo "   #{$full_command_line}"
+    echo
+    echo "at #{Time.now.to_s}"
+    echo
+    echo "For all keys (unshifted/shifted up/down), that contain"
+    echo "all given notes (maybe supplied as holes), printing"
+    echo "all the respective holes giving the same notes"
+    echo
+    echo
+
+END_OF_HEAD
 
     semis_wanted_unshifted_all = to_handle.map do |hon|
       semi = Theory::note2semi(hon, 2..8, true) || ($hole2note[hon] && Theory::note2semi($hole2note[hon], 2..8, true))
       err "Argument '#{hon}' is neither a note (e.g. a4 or ds6) nor a hole of a #{$type}-harp:   #{$harp_holes.join('  ')}" unless semi
       semi
     end
-    to_handle_as_notes = semis_wanted_unshifted_all.map {|semi| Theory::semi2note(semi)}
-    to_handle_as_notes_up = semis_wanted_unshifted_all.map {|semi| Theory::semi2note(semi + 12)}
-    to_handle_as_notes_down = semis_wanted_unshifted_all.map {|semi| Theory::semi2note(semi - 12)}
+    to_handle_as_notes = [-1,0,1].map do |ocs|
+      [ocs,
+       semis_wanted_unshifted_all.map {|semi| Theory::semi2note(semi + 12 * ocs)}]
+    end.to_h
     semis_wanted_unshifted = semis_wanted_unshifted_all.sort.uniq
     missing = nil
 
@@ -370,12 +389,17 @@ module ModeTools
     puts
     puts 'To get the actual holes to play, use:  harpwise print KEY -b NOTES_BELOW'
     puts
-    puts '  unshifted:    ' + to_handle_as_notes.join(' ')
-    puts '  octave up:    ' + to_handle_as_notes_up.join(' ')
-    puts '  octave down:  ' + to_handle_as_notes_down.join(' ')
+    puts '  unshifted:    ' + to_handle_as_notes[0].join(' ')
+    puts '  octave up:    ' + to_handle_as_notes[1].join(' ')
+    puts '  octave down:  ' + to_handle_as_notes[-1].join(' ')
+    puts
+    puts "or run   #{details_script_name}\nfor the cases marked with '-->' below"
     puts "\e[0m"
 
     to_print = Array.new
+    to_script = Array.new
+    to_script_count = 0
+    
     # Also try one octave up and down
     [0, 1, -1].each do |octave_shift|
 
@@ -471,10 +495,22 @@ module ModeTools
             ' |' + ccols[1] + ((nmiss == 0 ? '-->    ' : '') + nmiss.to_s).rjust(10) + def_col +
             ' | ' + ccols[2] + keys.ljust(cwidts[2]) + def_col +
             ' | ' + ccols[3] + name_avail.rjust(cwidts[3]) + def_col + ' |').gsub(*line_rpl).gsub(*arrow_rpl)
+      if nmiss == 0
+        to_script << 'figlet '+ ['down one oct', 'unshifted', 'up one oct'][ocs + 1] if ocs_prev != ocs
+        keys.split.each do |key|
+          to_script << "figlet #{key}"
+          to_script << "#{$0} print -b #{key} #{to_handle_as_notes[ocs].join(' ')}"
+          to_script_count += 1
+        end
+        to_script << ''
+      end
       ocs_prev = ocs
     end
     puts
     puts
+    to_script << "echo\necho 'Printed details for #{to_script_count} cases in total.'\necho\n"
+    details_script.write(to_script.join("\n") + "\n")
+    details_script.close
   end
 
   def tool_shift to_handle
